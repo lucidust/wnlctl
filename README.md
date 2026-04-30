@@ -29,45 +29,32 @@ wnlctl toggle
 wnlctl toggle --json
 ```
 
-Plain output is `on` or `off`. JSON output is intended for scripts,
-automation, status bars, and other integrations:
-
-```json
-{"enabled":false,"scheduleMode":"sunset-to-sunrise","colorTemperatureKelvin":4751,"scheduleStart":"21:00","scheduleEnd":"05:00","sunsetTime":"00:00","sunriseTime":"00:00"}
-```
-
-## Semantics
+Plain output is `on` or `off`.
 
 - `status` reads the current Night Light state and settings.
 - `on` writes the Night Light state value and preserves the schedule.
 - `off` writes the Night Light state value and preserves the schedule.
 - `toggle` switches the current state and preserves the schedule.
 
-This differs from `wnl off` in `kvnxiao/win-nightlight-cli`, which disables the
-schedule before disabling Night Light.
+## JSON Output
 
-## Implementation Note
+Use `--json` for scripts, automation, status bars, and other integrations:
 
-Night Light state contains both an outer CloudStore last-modified Unix
-timestamp and an inner Windows FILETIME field for the last Night Light state
-transition. The write commands update both values. Updating only the outer
-CloudStore timestamp can make Windows Settings show the new state while leaving
-the active display color transform stale.
+```powershell
+wnlctl status --json
+```
 
-## Provenance
+Example output:
 
-The registry parsing and serialization code is vendored from
-`kvnxiao/win-nightlight-cli` at commit
-`7a94ef98ee83d287241d46485b48490a48ac16ee`.
+```json
+{"enabled":false,"scheduleMode":"sunset-to-sunrise","colorTemperatureKelvin":4751,"scheduleStart":"21:00","scheduleEnd":"05:00","sunsetTime":"00:00","sunriseTime":"00:00"}
+```
 
-The upstream project also provides a CLI command named `wnl`. This project uses
-the separate `wnlctl` name to avoid command-name overlap while keeping the
-tool's purpose explicit.
+## Limitations
 
-Vendored means the relevant upstream code is copied into this repository under
-`vendor/win-nightlight-lib` and kept fixed until intentionally updated. Local
-modifications may exist; see the repository history and
-`THIRD_PARTY_NOTICES.md` for attribution details.
+Windows does not expose a stable public Night Light management API. `wnlctl`
+uses Windows CloudStore registry data, so behavior should be verified when using
+it on a Windows version that has not been tested before.
 
 ## Privacy
 
@@ -92,28 +79,12 @@ The binary will be written to:
 target\release\wnlctl.exe
 ```
 
-## Release
+## Provenance
 
-Releases are built on GitHub-hosted Windows runners. To publish a new release,
-first update `Cargo.toml` and `Cargo.lock` so the package version matches the
-tag, then push a `v*` tag:
+The registry parsing and serialization code is vendored from
+`kvnxiao/win-nightlight-cli` at commit
+`7a94ef98ee83d287241d46485b48490a48ac16ee`.
 
-```powershell
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-The release workflow builds `wnlctl.exe` with
-`cargo build --release --locked`, packages it as `wnlctl-windows-x64.zip`, and
-publishes both the zip archive and `wnlctl-windows-x64.zip.sha256`.
-
-## Validation Notes
-
-Windows does not expose a stable public Night Light management API. `wnlctl`
-uses reverse-engineered CloudStore registry data and should be validated on each
-target Windows version before relying on it.
-
-Open validation items:
-
-- Validate behavior during an active schedule window.
-- Validate on additional supported Windows versions.
+The upstream project also provides a CLI command named `wnl`. This project uses
+the separate `wnlctl` name to avoid command-name overlap while keeping the
+tool's purpose explicit. See `THIRD_PARTY_NOTICES.md` for attribution details.

@@ -8,8 +8,15 @@ forcing the current state on or off.
 
 ## Install
 
-Download `wnlctl-windows-x64.zip` from the latest GitHub Release, extract it,
-and place `wnlctl.exe` somewhere on your `PATH`.
+With Scoop:
+
+```powershell
+scoop bucket add lucidust https://github.com/lucidust/scoop-bucket
+scoop install wnlctl
+```
+
+Or download `wnlctl-windows-x64.zip` from the latest GitHub Release, extract
+it, and place `wnlctl.exe` somewhere on your `PATH`.
 
 To verify the downloaded archive, compare its SHA256 hash with the published
 `.sha256` file:

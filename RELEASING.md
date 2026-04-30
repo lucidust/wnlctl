@@ -54,7 +54,7 @@ date.
 Then verify installation:
 
 ```powershell
-scoop update lucidust
+scoop update
 scoop update wnlctl
 wnlctl --version
 ```
@@ -82,7 +82,7 @@ If the workflow is unavailable, update
 5. Verify installation.
 
    ```powershell
-   scoop update lucidust
+   scoop update
    scoop update wnlctl
    wnlctl --version
    ```

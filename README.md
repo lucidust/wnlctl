@@ -56,6 +56,9 @@ Windows does not expose a stable public Night Light management API. `wnlctl`
 uses Windows CloudStore registry data, so behavior should be verified when using
 it on a Windows version that has not been tested before.
 
+`wnlctl` has been tested by the maintainer on Windows 11 24H2 (OS Build
+26100.8246). Windows 10 and other Windows versions have not been tested.
+
 ## Privacy
 
 `wnlctl` has no networking code. Runtime access is limited to the current

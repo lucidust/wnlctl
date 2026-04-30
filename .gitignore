@@ -1,0 +1,6 @@
+target/
+dist/
+*.pdb
+*.exe
+*.zip
+*.sha256

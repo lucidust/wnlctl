@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - name: Check formatting
+        run: cargo fmt --check
+      - name: Lint
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Test
+        run: cargo test --workspace --locked
+      - name: Build
+        run: cargo build --release --locked -p wnlctl
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path dist | Out-Null
+          Copy-Item target/release/wnlctl.exe dist/wnlctl.exe
+          Copy-Item README.md dist/README.md
+          Copy-Item LICENSE dist/LICENSE
+          Copy-Item THIRD_PARTY_NOTICES.md dist/THIRD_PARTY_NOTICES.md
+          Compress-Archive -Path dist/* -DestinationPath wnlctl-windows-x64.zip -Force
+          $hash = (Get-FileHash wnlctl-windows-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  wnlctl-windows-x64.zip" | Set-Content -NoNewline wnlctl-windows-x64.zip.sha256
+      - name: Upload package
+        uses: actions/upload-artifact@v6
+        with:
+          name: wnlctl-windows-x64
+          path: |
+            wnlctl-windows-x64.zip
+            wnlctl-windows-x64.zip.sha256
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" `
+            "wnlctl-windows-x64.zip" `
+            "wnlctl-windows-x64.zip.sha256" `
+            --title "${{ github.ref_name }}" `
+            --generate-notes

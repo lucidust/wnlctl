@@ -2,15 +2,6 @@
 
 Maintainer notes for publishing a new `wnlctl` release.
 
-## Codex Shortcut
-
-For the usual patch release flow, tell Codex:
-
-```text
-wnlctl 패치 릴리스 진행해줘. 버전 bump, 검증, 커밋, 태그, 푸시,
-scoop-bucket workflow 실행, 로컬 scoop 업데이트까지 해줘.
-```
-
 ## Manual Release
 
 1. Update the package version in `Cargo.toml`.

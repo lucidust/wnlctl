@@ -34,7 +34,7 @@ impl NightlightState {
         reader.read_marshaled_header()?;
 
         let mut is_enabled = false;
-        let mut initialized: i32 = 0;
+        let mut initialized: i32 = 1;
         let mut last_transition_filetime: u64 = 0;
 
         loop {
@@ -105,26 +105,30 @@ impl NightlightState {
             + u64::from(now.timestamp_subsec_nanos() / 100);
     }
 
-    /// Enables the nightlight and updates the timestamp.
-    /// Returns true if a change was made (i.e. the nightlight was previously disabled).
-    pub fn enable(&mut self) -> bool {
-        if self.is_enabled {
+    fn set_enabled(&mut self, is_enabled: bool) -> bool {
+        let state_changed = self.is_enabled != is_enabled;
+        let marker_changed = self.initialized != 1;
+
+        if !state_changed && !marker_changed {
             return false;
         }
-        self.is_enabled = true;
+
+        self.is_enabled = is_enabled;
+        self.initialized = 1;
         self.update_transition_timestamps();
         true
     }
 
+    /// Enables the nightlight and updates the timestamp.
+    /// Returns true if a change was made.
+    pub fn enable(&mut self) -> bool {
+        self.set_enabled(true)
+    }
+
     /// Disables the nightlight and updates the timestamp.
-    /// Returns true if a change was made (i.e. the nightlight was previously enabled).
+    /// Returns true if a change was made.
     pub fn disable(&mut self) -> bool {
-        if !self.is_enabled {
-            return false;
-        }
-        self.is_enabled = false;
-        self.update_transition_timestamps();
-        true
+        self.set_enabled(false)
     }
 }
 
@@ -193,5 +197,26 @@ mod tests {
         let bytes = state_enabled.serialize_to_bytes();
         let state_deserialized = NightlightState::deserialize_from_bytes(&bytes).unwrap();
         assert_eq!(state_deserialized, state_enabled);
+    }
+
+    #[test]
+    fn state_changes_normalize_initialized_marker() {
+        let mut state = NightlightState {
+            timestamp: 0,
+            is_enabled: false,
+            initialized: 0,
+            last_transition_filetime: 0,
+        };
+
+        assert!(state.enable());
+        assert_eq!(state.initialized, 1);
+
+        state.initialized = 0;
+        assert!(state.disable());
+        assert_eq!(state.initialized, 1);
+
+        state.initialized = 0;
+        assert!(state.disable());
+        assert_eq!(state.initialized, 1);
     }
 }

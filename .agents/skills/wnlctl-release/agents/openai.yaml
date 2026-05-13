@@ -1,0 +1,4 @@
+interface:
+  display_name: "wnlctl Release"
+  short_description: "Release wnlctl and update the local Scoop install"
+  default_prompt: "Use this skill to perform a wnlctl patch release, update the scoop bucket, and update the local Scoop installation."

@@ -2,6 +2,13 @@
 
 Maintainer notes for publishing a new `wnlctl` release.
 
+## Agent-assisted Release
+
+Agents that support Agent Skills can use the repo-local `$wnlctl-release`
+skill in `.agents/skills/wnlctl-release`. It extends this manual checklist
+with preflight checks, GitHub workflow verification, Scoop bucket verification,
+and local Scoop installation validation.
+
 ## Manual Release
 
 1. Update the package version in `Cargo.toml`.
